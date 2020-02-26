@@ -1,0 +1,16 @@
+1) podlaczyc Arduino
+
+2) Wlaczyc hairless_midiserial (sprawdzic BAUD rate) i ustawic Arduino jako device
+
+3) wlaczyc loopMIDI (.exe jest na C w folderze: C:\Program Files (x86)\Tobias Erichsen\loopMIDI)
+
+4) utworzyc wirtualny port MIDI w loopMIDI
+
+5) w hairless ustawic loopMIDI
+
+6) w Reaperze ustawic loopMIDI
+
+- czerwony to uderzenie crasha
+- czarny to zatrzymanie talerza
+- niebieski to masa
+- układ: https://arduino.stackexchange.com/questions/32793/several-piezo-contact-mics-with-arduino?fbclid=IwAR0N-GsWEfaFlYdk2xDOvc0aYjVkZDs3TceU_XP_0vaBfH4HXn7DHbC4Z8U
