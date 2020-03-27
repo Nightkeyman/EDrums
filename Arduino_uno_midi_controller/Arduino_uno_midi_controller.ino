@@ -42,7 +42,7 @@ void setup() {
 
 void loop() {
   unsigned int crashHit = analogRead(crashPin);
-  if(crashHit < 300) {
+  if(crashHit < 300 || crashHit > 440) {
     hitCrash(crashHit);
   }
 
@@ -60,10 +60,10 @@ void loop() {
 void hitCrash(unsigned int crashHit) {
   unsigned int val = 0, cnt = 0;
   crashHitCalc = ((450 - crashHit)*127)/300; //450/300 because its easier to get higher value from crash piezo, might be necessary to adapt to individual needs
-  if(crashHitCalc > 127) crashHitCalc == 127;
+  if(crashHitCalc > 127) crashHitCalc = 127;
   MIDImessage(noteON, crashSignal, crashHitCalc);
   
-  while(cnt < 5) {
+  while(cnt < 15) {
     val = analogRead(crashPin);
     if((val < 342) && (val > 336)) { // wait until its under specific level
       cnt++;
@@ -72,6 +72,7 @@ void hitCrash(unsigned int crashHit) {
     //if(val < crashHit) return; // check if there was a new hit
     //Serial.println(val);
   }
+  //delay(20);
 }
 
 void chokeCrash() {
