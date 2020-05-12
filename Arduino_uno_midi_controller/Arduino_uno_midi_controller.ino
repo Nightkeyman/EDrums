@@ -12,7 +12,7 @@
 #define kickPin 3
 
 // signals
-#define chokeSignal 56
+#define chokeSignal 58
 #define crashSignal 57
 
 unsigned int velocity = 100; //velocity of MIDI notes, must be between 0 and 127
@@ -32,7 +32,7 @@ unsigned int crashHitCalc = 0;
 void setup() {
   // Set MIDI baud rate:
   // 9600 to interface with Hairless midi software
-  Serial.begin(9600);
+  Serial.begin(115200);
   pinMode(crashPin, INPUT);
   pinMode(chokePin, INPUT);
   pinMode(kickPin, INPUT);
@@ -42,7 +42,8 @@ void setup() {
 
 void loop() {
   unsigned int crashHit = analogRead(crashPin);
-  if(crashHit < 300 || crashHit > 440) {
+  //Serial.println(crashHit);
+  if(crashHit < 320 || crashHit > 370) {
     hitCrash(crashHit);
   }
 
@@ -55,6 +56,7 @@ void loop() {
     delay(30);
     while(!digitalRead(kickPin));
   }
+  //delay(2);
 }
 
 void hitCrash(unsigned int crashHit) {
@@ -69,18 +71,15 @@ void hitCrash(unsigned int crashHit) {
       cnt++;
     }
     delay(1);
-    //if(val < crashHit) return; // check if there was a new hit
-    //Serial.println(val);
   }
-  //delay(20);
 }
 
 void chokeCrash() {
-  delay(3);
+  delay(2);
   if(digitalRead(chokePin) == 1) return;
-  MIDImessage(noteON, chokeSignal, crashHitCalc);
+  MIDImessage(noteON, chokeSignal, 1); //crashHitCalc
   while(digitalRead(chokePin) == 0);
-  delay(5);
+  delay(2);
 }
 
 void kickDrum() {
@@ -93,5 +92,3 @@ void MIDImessage(int command, int MIDInote, int MIDIvelocity) {
   Serial.write(MIDInote);//send pitch data
   Serial.write(MIDIvelocity);//send velocity data
 }
-
-
