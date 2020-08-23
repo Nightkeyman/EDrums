@@ -110,11 +110,10 @@ void hitHihat(unsigned int hihatHit) {
     hihatHit = val;
     val = analogRead(HIHAT_PIN);
   }
-  hihatHitCalc = ((HIHAT_MIN_VAL - hihatHit)*MIDI_MAX_VALUE)/HIHAT_DIVIDER; //450/300 because its easier to get higher value from crash piezo, might be necessary to adapt to individual needs
-  if(hihatHitCalc > MIDI_MAX_VALUE) {
-    hihatHitCalc = MIDI_MAX_VALUE;
-  }
-  MIDImessage(noteON, HIHAT_OPEN_SIGNAL, hihatHitCalc);
+  hihatHitCalc = ((HIHAT_MIN_VAL - hihatHit)*MIDI_MAX_VALUE)/HIHAT_DIVIDER;
+  if(hihatHitCalc > MIDI_MAX_VALUE) hihatHitCalc = MIDI_MAX_VALUE;
+  if(digitalRead(HIHAT_PEDAL_PIN) == 0) MIDImessage(noteON, HIHAT_CLOSED_SIGNAL, hihatHitCalc);
+  else MIDImessage(noteON, HIHAT_OPEN_SIGNAL, hihatHitCalc);
   debounce(HIHAT_PIN, HIHAT_MAX_VAL, HIHAT_MIN_VAL);
 }
 
