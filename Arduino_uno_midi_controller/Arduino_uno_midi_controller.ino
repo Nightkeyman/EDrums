@@ -28,6 +28,7 @@
 #define HIHAT_MIN_VAL 439
 #define HIHAT_MAX_VAL 446
 #define HIHAT_DIVIDER 150
+#define DEBOUNCE_CNT 30
 
 //************ VARIABLES ************//
 unsigned int velocity = 100; //velocity of MIDI notes, must be between 0 and 127
@@ -103,22 +104,18 @@ void loop() {
 
 //************ FUNCTIONS ************//
 void hitHihat(unsigned int hihatHit) {
-  unsigned int val = 0, cnt = 0;
+  unsigned int val = 0;
   val = analogRead(HIHAT_PIN);
   while(val < hihatHit) {
     hihatHit = val;
     val = analogRead(HIHAT_PIN);
   }
-  hihatHitCalc = ((439 - hihatHit)*MIDI_MAX_VALUE)/HIHAT_DIVIDER; //450/300 because its easier to get higher value from crash piezo, might be necessary to adapt to individual needs
-  if(hihatHitCalc > MIDI_MAX_VALUE) hihatHitCalc = MIDI_MAX_VALUE;
-  MIDImessage(noteON, HIHAT_OPEN_SIGNAL, hihatHitCalc);
-  while(cnt < 30) {
-    val = analogRead(HIHAT_PIN);
-    if((val < 445) && (val > 439)) { // wait until its under specific level
-      cnt++;
-    }
-    delay(1);
+  hihatHitCalc = ((HIHAT_MIN_VAL - hihatHit)*MIDI_MAX_VALUE)/HIHAT_DIVIDER; //450/300 because its easier to get higher value from crash piezo, might be necessary to adapt to individual needs
+  if(hihatHitCalc > MIDI_MAX_VALUE) {
+    hihatHitCalc = MIDI_MAX_VALUE;
   }
+  MIDImessage(noteON, HIHAT_OPEN_SIGNAL, hihatHitCalc);
+  debounce(HIHAT_PIN, HIHAT_MAX_VAL, HIHAT_MIN_VAL);
 }
 
 void hitCrash(unsigned int crashHit) {
@@ -126,14 +123,7 @@ void hitCrash(unsigned int crashHit) {
   crashHitCalc = ((450 - crashHit)*MIDI_MAX_VALUE)/CRASH_DIVIDER; //450/300 because its easier to get higher value from crash piezo, might be necessary to adapt to individual needs
   if(crashHitCalc > MIDI_MAX_VALUE) crashHitCalc = MIDI_MAX_VALUE;
   MIDImessage(noteON, CRASH_SIGNAL, crashHitCalc);
-  
-  while(cnt < 30) {
-    val = analogRead(CRASH_PIN);
-    if((val < 342) && (val > 336)) { // wait until its under specific level
-      cnt++;
-    }
-    delay(1);
-  }
+  debounce(CRASH_PIN, 342, 336);
 }
 
 void chokeCrash() {
@@ -154,6 +144,17 @@ void kickDrum() {
     delay(1);
   }
   kickFlag = 1;
+}
+
+void debounce(int pin, int max_val, int min_val) {
+  unsigned int val = 0, cnt = 0;
+  while(cnt < DEBOUNCE_CNT) {
+    val = analogRead(pin);
+    if((val < max_val) && (val > min_val)) { // wait until its under specific level
+      cnt++;
+    }
+    delay(1);
+  }
 }
 
   //send MIDI message through USB port
