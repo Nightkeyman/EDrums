@@ -27,7 +27,7 @@
 #define CRASH_DIVIDER 300
 #define HIHAT_MIN_VAL 439
 #define HIHAT_MAX_VAL 446
-#define HIHAT_DIVIDER 150
+#define HIHAT_DIVIDER 250
 #define DEBOUNCE_CNT 30
 
 //************ VARIABLES ************//
@@ -79,10 +79,10 @@ void loop() {
   }
 
   // HIHAT with PEDAL
-  unsigned int hihatHit = analogRead(HIHAT_PIN);
-  if(hihatHit < 439){// || hihatHit > 460) {  // level on 441-444, mini= 0, maxi = 850
-    hitHihat(hihatHit);
-  }
+  //unsigned int hihatHit = analogRead(HIHAT_PIN);
+  //if(hihatHit < 439){// || hihatHit > 460) {  // level on 441-444, mini= 0, maxi = 850
+  //  hitHihat(hihatHit);
+  //}
   /*if(digitalRead(HIHAT_PEDAL_PIN) == 0) {
     hihatPedal(); //dorobic semafor
   }*/
