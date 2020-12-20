@@ -24,7 +24,8 @@
 #define MIDI_MAX_VALUE 127
 #define CRASH_MIN_VAL 320
 #define CRASH_MAX_VAL 370
-#define CRASH_DIVIDER 300
+#define CRASH_MID_VAL 338
+#define CRASH_COEF 0.4
 #define HIHAT_MIN_VAL 439
 #define HIHAT_MAX_VAL 446
 #define HIHAT_DIVIDER 250
@@ -38,8 +39,9 @@ unsigned int noteOFF = 128; //128 = 10000000 in binary, note off command
 unsigned int maxi = 0, mini = 1024;
 
 int crashValue = 0;
-unsigned int crashHitCalc = 0;
+long crashHitCalc = 0;
 unsigned int hihatHitCalc = 0;
+int diff = 0;
 
 int chokeFlag = 0;
 volatile int chokeState = 0;
@@ -71,7 +73,7 @@ void setup() {
 void loop() {
   // CRASH CYMBAL WITH CHOKE 
   unsigned int crashHit = analogRead(CRASH_PIN);
-  if(crashHit < 320 || crashHit > 370) {
+  if(crashHit < CRASH_MIN_VAL || crashHit > CRASH_MAX_VAL) {
     hitCrash(crashHit);
   }
   if(digitalRead(CHOKE_PIN) == 0) {
@@ -119,14 +121,29 @@ void hitHihat(unsigned int hihatHit) {
 
 void hitCrash(unsigned int crashHit) {
   unsigned int val = 0, cnt = 0;
-  crashHitCalc = ((450 - crashHit)*MIDI_MAX_VALUE)/CRASH_DIVIDER; //450/300 because its easier to get higher value from crash piezo, might be necessary to adapt to individual needs
+  if(crashHit < CRASH_MID_VAL) {
+    val = analogRead(CRASH_PIN);
+    while(val < crashHit) {
+      crashHit = val;
+      val = analogRead(CRASH_PIN);
+    }
+  } else if(crashHit > CRASH_MID_VAL) {
+    val = analogRead(CRASH_PIN);
+    while(val > crashHit) {
+      crashHit = val;
+      val = analogRead(CRASH_PIN);
+    }
+  }
+  diff = CRASH_MID_VAL - crashHit;
+  diff = abs(diff);
+  crashHitCalc = (diff*CRASH_COEF); //adjust CRASH_DIVIDER properly to the needs
   if(crashHitCalc > MIDI_MAX_VALUE) crashHitCalc = MIDI_MAX_VALUE;
   MIDImessage(noteON, CRASH_SIGNAL, crashHitCalc);
-  debounce(CRASH_PIN, 342, 336);
+  debounce(CRASH_PIN, CRASH_MID_VAL + 4, CRASH_MID_VAL - 4);
 }
 
 void chokeCrash() {
-  delay(2);
+  delay(3);
   if(digitalRead(CHOKE_PIN) == 1) return;
   MIDImessage(noteON, CHOKE_SIGNAL, 1); //crashHitCalc
   while(digitalRead(CHOKE_PIN) == 0);
