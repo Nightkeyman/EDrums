@@ -26,9 +26,10 @@
 #define CRASH_MAX_VAL 370
 #define CRASH_MID_VAL 338
 #define CRASH_COEF 0.4
-#define HIHAT_MIN_VAL 439
-#define HIHAT_MAX_VAL 446
-#define HIHAT_DIVIDER 250
+#define HIHAT_MIN_VAL 437
+#define HIHAT_MAX_VAL 448
+#define HIHAT_MID_VAL 442
+#define HIHAT_COEF 0.65
 #define DEBOUNCE_CNT 30
 
 //************ VARIABLES ************//
@@ -40,12 +41,12 @@ unsigned int maxi = 0, mini = 1024;
 
 int crashValue = 0;
 long crashHitCalc = 0;
-unsigned int hihatHitCalc = 0;
 int diff = 0;
-
 int chokeFlag = 0;
 volatile int chokeState = 0;
 unsigned int chokeCnt = 0;
+
+unsigned int hihatHitCalc = 0;
 
 volatile int kickState = 0;
 volatile int kickFlag = 0;
@@ -81,13 +82,13 @@ void loop() {
   }
 
   // HIHAT with PEDAL
-  //unsigned int hihatHit = analogRead(HIHAT_PIN);
-  //if(hihatHit < 439){// || hihatHit > 460) {  // level on 441-444, mini= 0, maxi = 850
-  //  hitHihat(hihatHit);
+  unsigned int hihatHit = analogRead(HIHAT_PIN);
+  if(hihatHit < HIHAT_MIN_VAL || hihatHit > HIHAT_MAX_VAL){
+    hitHihat(hihatHit);
+  }
+  //if(digitalRead(HIHAT_PEDAL_PIN) == 0) {
+  //  hihatPedal(); //dorobic semafor
   //}
-  /*if(digitalRead(HIHAT_PEDAL_PIN) == 0) {
-    hihatPedal(); //dorobic semafor
-  }*/
   
   // KICK DRUM
   /*
@@ -104,23 +105,38 @@ void loop() {
   }*/
 }
 
+//************ ********* ************//
 //************ FUNCTIONS ************//
+//************ ********* ************//
 void hitHihat(unsigned int hihatHit) {
   unsigned int val = 0;
-  val = analogRead(HIHAT_PIN);
-  while(val < hihatHit) {
-    hihatHit = val;
+  if(hihatHit < HIHAT_MID_VAL) {
     val = analogRead(HIHAT_PIN);
+    while(val < hihatHit) {
+      hihatHit = val;
+      val = analogRead(HIHAT_PIN);
+    }
+  } else if(hihatHit > HIHAT_MID_VAL) {
+    val = analogRead(HIHAT_PIN);
+    while(val > hihatHit) {
+      hihatHit = val;
+      val = analogRead(HIHAT_PIN);
+    }
   }
-  hihatHitCalc = ((HIHAT_MIN_VAL - hihatHit)*MIDI_MAX_VALUE)/HIHAT_DIVIDER;
+  diff = HIHAT_MID_VAL - hihatHit;
+  diff = abs(diff);
+  hihatHitCalc = (diff*HIHAT_COEF);
   if(hihatHitCalc > MIDI_MAX_VALUE) hihatHitCalc = MIDI_MAX_VALUE;
-  if(digitalRead(HIHAT_PEDAL_PIN) == 0) MIDImessage(noteON, HIHAT_CLOSED_SIGNAL, hihatHitCalc);
-  else MIDImessage(noteON, HIHAT_OPEN_SIGNAL, hihatHitCalc);
+  if(digitalRead(HIHAT_PEDAL_PIN) == 0) {
+    MIDImessage(noteON, HIHAT_CLOSED_SIGNAL, hihatHitCalc);
+  } else {
+    MIDImessage(noteON, HIHAT_OPEN_SIGNAL, hihatHitCalc);
+  }
   debounce(HIHAT_PIN, HIHAT_MAX_VAL, HIHAT_MIN_VAL);
 }
 
 void hitCrash(unsigned int crashHit) {
-  unsigned int val = 0, cnt = 0;
+  unsigned int val = 0;
   if(crashHit < CRASH_MID_VAL) {
     val = analogRead(CRASH_PIN);
     while(val < crashHit) {
@@ -145,7 +161,7 @@ void hitCrash(unsigned int crashHit) {
 void chokeCrash() {
   delay(3);
   if(digitalRead(CHOKE_PIN) == 1) return;
-  MIDImessage(noteON, CHOKE_SIGNAL, 1); //crashHitCalc
+  MIDImessage(noteON, CHOKE_SIGNAL, 1);
   while(digitalRead(CHOKE_PIN) == 0);
   delay(6);
 }
