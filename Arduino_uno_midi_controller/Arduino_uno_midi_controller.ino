@@ -30,6 +30,8 @@
 #define HIHAT_MAX_VAL 448
 #define HIHAT_MID_VAL 442
 #define HIHAT_COEF 0.65
+#define HIHAT_CLOSED 0
+#define HIHAT_OPENED 1
 #define DEBOUNCE_CNT 30
 
 //************ VARIABLES ************//
@@ -47,6 +49,7 @@ volatile int chokeState = 0;
 unsigned int chokeCnt = 0;
 
 unsigned int hihatHitCalc = 0;
+int isHiHatOpened = HIHAT_OPENED;
 
 volatile int kickState = 0;
 volatile int kickFlag = 0;
@@ -86,9 +89,7 @@ void loop() {
   if(hihatHit < HIHAT_MIN_VAL || hihatHit > HIHAT_MAX_VAL){
     hitHihat(hihatHit);
   }
-  //if(digitalRead(HIHAT_PEDAL_PIN) == 0) {
-  //  hihatPedal(); //dorobic semafor
-  //}
+  hiHatPedal();
   
   // KICK DRUM
   /*
@@ -108,6 +109,15 @@ void loop() {
 //************ ********* ************//
 //************ FUNCTIONS ************//
 //************ ********* ************//
+int hiHatPedal() {
+  if(digitalRead(HIHAT_PEDAL_PIN) == HIHAT_OPENED && isHiHatOpened == HIHAT_CLOSED) {
+    isHiHatOpened = HIHAT_OPENED;
+  } else if(digitalRead(HIHAT_PEDAL_PIN) == HIHAT_CLOSED  && isHiHatOpened == HIHAT_OPENED){
+    isHiHatOpened = HIHAT_CLOSED;
+    MIDImessage(noteON, HIHAT_PEDAL_SIGNAL, MIDI_MAX_VALUE);
+  }
+}
+
 void hitHihat(unsigned int hihatHit) {
   unsigned int val = 0;
   if(hihatHit < HIHAT_MID_VAL) {
@@ -127,9 +137,9 @@ void hitHihat(unsigned int hihatHit) {
   diff = abs(diff);
   hihatHitCalc = (diff*HIHAT_COEF);
   if(hihatHitCalc > MIDI_MAX_VALUE) hihatHitCalc = MIDI_MAX_VALUE;
-  if(digitalRead(HIHAT_PEDAL_PIN) == 0) {
+  if(isHiHatOpened == HIHAT_CLOSED) {
     MIDImessage(noteON, HIHAT_CLOSED_SIGNAL, hihatHitCalc);
-  } else {
+  } else if(isHiHatOpened == HIHAT_OPENED) {
     MIDImessage(noteON, HIHAT_OPEN_SIGNAL, hihatHitCalc);
   }
   debounce(HIHAT_PIN, HIHAT_MAX_VAL, HIHAT_MIN_VAL);
