@@ -1,3 +1,5 @@
+#include "src/DrumController/DrumController.hpp"
+#include "src/DrumElement/ContinuousDrumElement.hpp"
 #include <MIDI.h>
 
 // MIDI defines
@@ -29,14 +31,12 @@
 #define HIHAT_MIN_VAL 439
 #define HIHAT_MAX_VAL 446
 #define HIHAT_DIVIDER 250
-#define DEBOUNCE_CNT 30
+constexpr uint8_t debounce_cnt = 30U;
 
 //************ VARIABLES ************//
-unsigned int velocity = 100; //velocity of MIDI notes, must be between 0 and 127
-unsigned int noteON = 144; //144 = 10010000 in binary, note on command
-unsigned int noteOFF = 128; //128 = 10000000 in binary, note off command
-
-unsigned int maxi = 0, mini = 1024;
+constexpr uint8_t velocity = 100; //velocity of MIDI notes, must be between 0 and 127
+constexpr uint8_t noteON = 144; //144 = 10010000 in binary, note on command
+constexpr uint8_t noteOFF = 128; //128 = 10000000 in binary, note off command
 
 int crashValue = 0;
 long crashHitCalc = 0;
@@ -51,131 +51,169 @@ volatile int kickState = 0;
 volatile int kickFlag = 0;
 volatile int kickTim = 0;
 
+ContinuousDrumElement crashCymbal(CRASH_MID_VAL, CRASH_SIGNAL);
 
 //************ ***** ************//
 //************ SETUP ************//
 //************ ***** ************//
-void setup() {
-  // Set MIDI baud rate:
-  // 9600 to interface with Hairless midi software
-  Serial.begin(115200);
-  pinMode(CRASH_PIN, INPUT);
-  pinMode(CHOKE_PIN, INPUT);
-  pinMode(KICK_PIN, INPUT);
-  pinMode(HIHAT_PEDAL_PIN, INPUT);
-  pinMode(HIHAT_PIN, INPUT);
-  //attachInterrupt(digitalPinToInterrupt(KICK_PIN), kickDrum, FALLING);
+void setup()
+{
+    // Set MIDI baud rate:
+    // 115200 to interface with Hairless midi software
+    Serial.begin(115200);
+    pinMode(CRASH_PIN, INPUT);
+    pinMode(CHOKE_PIN, INPUT);
+    pinMode(KICK_PIN, INPUT);
+    pinMode(HIHAT_PEDAL_PIN, INPUT);
+    pinMode(HIHAT_PIN, INPUT);
 }
 
 //************ **** ************//
 //************ LOOP ************//
 //************ **** ************//
-void loop() {
-  // CRASH CYMBAL WITH CHOKE 
-  unsigned int crashHit = analogRead(CRASH_PIN);
-  if(crashHit < CRASH_MIN_VAL || crashHit > CRASH_MAX_VAL) {
-    hitCrash(crashHit);
-  }
-  if(digitalRead(CHOKE_PIN) == 0) {
-    chokeCrash(); //dorobic semafor
-  }
-
-  // HIHAT with PEDAL
-  //unsigned int hihatHit = analogRead(HIHAT_PIN);
-  //if(hihatHit < 439){// || hihatHit > 460) {  // level on 441-444, mini= 0, maxi = 850
-  //  hitHihat(hihatHit);
-  //}
-  /*if(digitalRead(HIHAT_PEDAL_PIN) == 0) {
-    hihatPedal(); //dorobic semafor
-  }*/
-  
-  // KICK DRUM
-  /*
-  if(kickFlag == 1) {
-    kickTim++;
-    if(kickTim > 50 && digitalRead(KICK_PIN) == 1) {
-      kickFlag = 0;
-      delay(10);
+void loop()
+{
+    // CRASH CYMBAL WITH CHOKE
+    uint16_t crashHit = analogRead(CRASH_PIN);
+    if(crashHit < CRASH_MIN_VAL || crashHit > CRASH_MAX_VAL)
+    {
+        hitCrash(crashHit);
     }
-  }
-  if((!digitalRead(KICK_PIN)) && (kickFlag == 0)) {
-    kickDrum();
-    //while(!digitalRead(KICK_PIN));
-  }*/
+    if(digitalRead(CHOKE_PIN) == 0)
+    {
+        chokeCrash(); //dorobic semafor
+    }
+
+    // START input data read //
+    //
+    /*  */
+    //
+    // END input data read //
+
+    crashCymbal.updateState(crashHit);
+    if(crashCymbal.isDrumHit() == true)
+    {
+        MIDImessage(noteON, CRASH_SIGNAL, crashCymbal.getHitVelocity());
+    }
+
+    // HIHAT with PEDAL
+    //unsigned int hihatHit = analogRead(HIHAT_PIN);
+    //if(hihatHit < 439){// || hihatHit > 460) {  // level on 441-444, mini= 0, maxi = 850
+    //  hitHihat(hihatHit);
+    //}
+    /*if(digitalRead(HIHAT_PEDAL_PIN) == 0) {
+    hihatPedal(); //dorobic semafor
+    }*/
+
+    // KICK DRUM
+    /*
+    if(kickFlag == 1) {
+      kickTim++;
+      if(kickTim > 50 && digitalRead(KICK_PIN) == 1) {
+        kickFlag = 0;
+        delay(10);
+      }
+    }
+    if((!digitalRead(KICK_PIN)) && (kickFlag == 0)) {
+      kickDrum();
+      //while(!digitalRead(KICK_PIN));
+    }*/
 }
 
 //************ FUNCTIONS ************//
-void hitHihat(unsigned int hihatHit) {
-  unsigned int val = 0;
-  val = analogRead(HIHAT_PIN);
-  while(val < hihatHit) {
-    hihatHit = val;
+void hitHihat(unsigned int hihatHit)
+{
+    unsigned int val = 0;
     val = analogRead(HIHAT_PIN);
-  }
-  hihatHitCalc = ((HIHAT_MIN_VAL - hihatHit)*MIDI_MAX_VALUE)/HIHAT_DIVIDER;
-  if(hihatHitCalc > MIDI_MAX_VALUE) hihatHitCalc = MIDI_MAX_VALUE;
-  if(digitalRead(HIHAT_PEDAL_PIN) == 0) MIDImessage(noteON, HIHAT_CLOSED_SIGNAL, hihatHitCalc);
-  else MIDImessage(noteON, HIHAT_OPEN_SIGNAL, hihatHitCalc);
-  debounce(HIHAT_PIN, HIHAT_MAX_VAL, HIHAT_MIN_VAL);
-}
-
-void hitCrash(unsigned int crashHit) {
-  unsigned int val = 0, cnt = 0;
-  if(crashHit < CRASH_MID_VAL) {
-    val = analogRead(CRASH_PIN);
-    while(val < crashHit) {
-      crashHit = val;
-      val = analogRead(CRASH_PIN);
+    while(val < hihatHit)
+    {
+        hihatHit = val;
+        val = analogRead(HIHAT_PIN);
     }
-  } else if(crashHit > CRASH_MID_VAL) {
-    val = analogRead(CRASH_PIN);
-    while(val > crashHit) {
-      crashHit = val;
-      val = analogRead(CRASH_PIN);
+    hihatHitCalc = ((HIHAT_MIN_VAL - hihatHit) * MIDI_MAX_VALUE) / HIHAT_DIVIDER;
+    if(hihatHitCalc > MIDI_MAX_VALUE)
+        hihatHitCalc = MIDI_MAX_VALUE;
+    if(digitalRead(HIHAT_PEDAL_PIN) == 0)
+        MIDImessage(noteON, HIHAT_CLOSED_SIGNAL, hihatHitCalc);
+    else
+        MIDImessage(noteON, HIHAT_OPEN_SIGNAL, hihatHitCalc);
+    debounce(HIHAT_PIN, HIHAT_MAX_VAL, HIHAT_MIN_VAL);
+}
+
+void hitCrash(unsigned int crashHit)
+{
+    unsigned int val = 0, cnt = 0;
+    if(crashHit < CRASH_MID_VAL)
+    {
+        val = analogRead(CRASH_PIN);
+        while(val < crashHit)
+        {
+            crashHit = val;
+            val = analogRead(CRASH_PIN);
+        }
     }
-  }
-  diff = CRASH_MID_VAL - crashHit;
-  diff = abs(diff);
-  crashHitCalc = (diff*CRASH_COEF); //adjust CRASH_DIVIDER properly to the needs
-  if(crashHitCalc > MIDI_MAX_VALUE) crashHitCalc = MIDI_MAX_VALUE;
-  MIDImessage(noteON, CRASH_SIGNAL, crashHitCalc);
-  debounce(CRASH_PIN, CRASH_MID_VAL + 4, CRASH_MID_VAL - 4);
-}
-
-void chokeCrash() {
-  delay(3);
-  if(digitalRead(CHOKE_PIN) == 1) return;
-  MIDImessage(noteON, CHOKE_SIGNAL, 1); //crashHitCalc
-  while(digitalRead(CHOKE_PIN) == 0);
-  delay(6);
-}
-
-void kickDrum() {
-  unsigned int cnt = 0;
-  MIDImessage(noteON, KICK_SIGNAL, 100);
-  while(cnt < 15) {
-    if(digitalRead(KICK_PIN) == 0) { // wait until its under specific level
-      cnt++;
+    else if(crashHit > CRASH_MID_VAL)
+    {
+        val = analogRead(CRASH_PIN);
+        while(val > crashHit)
+        {
+            crashHit = val;
+            val = analogRead(CRASH_PIN);
+        }
     }
-    delay(1);
-  }
-  kickFlag = 1;
+    diff = CRASH_MID_VAL - crashHit;
+    diff = abs(diff);
+    crashHitCalc = (diff * CRASH_COEF); //adjust CRASH_DIVIDER properly to the needs
+    if(crashHitCalc > MIDI_MAX_VALUE)
+        crashHitCalc = MIDI_MAX_VALUE;
+    MIDImessage(noteON, CRASH_SIGNAL, crashHitCalc);
+    debounce(CRASH_PIN, CRASH_MID_VAL + 4, CRASH_MID_VAL - 4);
 }
 
-void debounce(int pin, int max_val, int min_val) {
-  unsigned int val = 0, cnt = 0;
-  while(cnt < DEBOUNCE_CNT) {
-    val = analogRead(pin);
-    if((val < max_val) && (val > min_val)) { // wait until its under specific level
-      cnt++;
+void chokeCrash()
+{
+    delay(3);
+    if(digitalRead(CHOKE_PIN) == 1)
+        return;
+    MIDImessage(noteON, CHOKE_SIGNAL, 1); //crashHitCalc
+    while(digitalRead(CHOKE_PIN) == 0)
+        ;
+    delay(6);
+}
+
+void kickDrum()
+{
+    unsigned int cnt = 0;
+    MIDImessage(noteON, KICK_SIGNAL, 100);
+    while(cnt < 15)
+    {
+        if(digitalRead(KICK_PIN) == 0)
+        { // wait until its under specific level
+            cnt++;
+        }
+        delay(1);
     }
-    delay(1);
-  }
+    kickFlag = 1;
 }
 
-  //send MIDI message through USB port
-void MIDImessage(int command, int MIDInote, int MIDIvelocity) {
-  Serial.write(command);//send note on or note off command 
-  Serial.write(MIDInote);//send pitch data
-  Serial.write(MIDIvelocity);//send velocity data
+void debounce(int pin, int max_val, int min_val)
+{
+    unsigned int val = 0, cnt = 0;
+    while(cnt < debounce_cnt)
+    {
+        val = analogRead(pin);
+        if((val < max_val) && (val > min_val))
+        { // wait until its under specific level
+            cnt++;
+        }
+        delay(1);
+    }
+}
+
+//send MIDI message through USB port
+void MIDImessage(int command, int MIDInote, int MIDIvelocity)
+{
+    Serial.write(command); //send note on or note off command
+    Serial.write(MIDInote); //send pitch data
+    Serial.write(MIDIvelocity); //send velocity data
 }

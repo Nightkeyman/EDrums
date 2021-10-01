@@ -1,0 +1,24 @@
+CRASH CASES:
+1) 300 potem 250 --> powinno zachowac 250
+	- jesli dalej 200 powinno zachowac 200
+	- jesli dalej 300 powinno zachowac 250 i wyjsc
+
+2) 300 potem 350 --> powinno zachowac 300 i wyjsc
+
+3) 400 potem 500 --> powinno zachowac 500
+	- jesli dalej 600 powinno zachowac 600
+	- jesli dalej 400 powinno zachowac 500 i wyjsc
+
+	- diff=-552
+	- crashhit
+
+4) 400 potem 300 --> powinno zachowac 400 i wyjsc
+
+HIHAT PEDAL CASES:
+1) hihat otwarty --> hihat zamkniety
+
+2) hihat otwarty --> hihat otwart (brak zmiany)
+
+3) hihat zamkniety --> hihat otwarty
+
+4) hihat zamkniety --> hihat zamkniety (brak zmiany)

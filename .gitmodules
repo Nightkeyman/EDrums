@@ -1,0 +1,3 @@
+[submodule "Arduino_uno_midi_controller/test/googletest"]
+	path = Arduino_uno_midi_controller/test/googletest
+	url = git@github.com:google/googletest.git
