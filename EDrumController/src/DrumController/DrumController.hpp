@@ -4,6 +4,7 @@
 class DrumController
 {
 public:
+    void init();
     void cycle();
 };
 

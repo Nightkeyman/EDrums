@@ -1,6 +1,7 @@
 #ifndef CONT_DRUM_ELEM_H
 #define CONT_DRUM_ELEM_H
 
+#include "../Debouncer/Debouncer.hpp"
 #include "DrumElementInterface.hpp"
 
 class ContinuousDrumElement : public DrumElementBase<uint16_t>

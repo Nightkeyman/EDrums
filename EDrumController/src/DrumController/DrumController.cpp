@@ -1,4 +1,6 @@
+#include "../DrumElement/DrumElementInterface.hpp"
 #include "DrumController.hpp"
-//#include "DrumElementInterface.hpp"
 
 void DrumController::cycle() { }
+
+void DrumController::init() { }
