@@ -1,7 +1,7 @@
 #ifndef CONT_DRUM_ELEM_H
 #define CONT_DRUM_ELEM_H
 
-#include "../Debouncer/Debouncer.hpp"
+#include "../Utils/IIRFilter.hpp"
 #include "DrumElementInterface.hpp"
 
 class ContinuousDrumElement : public DrumElementBase<uint16_t>
@@ -11,7 +11,7 @@ public:
         : _drumLimits{static_cast<uint16_t>(idleSignal - 20U),
                       static_cast<uint16_t>(idleSignal),
                       static_cast<uint16_t>(idleSignal + 20U)}
-        , DrumElementBase()
+        , DrumElementBase(midiSignal)
     { }
 
     ContinuousDrumElement() = default;
@@ -19,10 +19,12 @@ public:
     virtual void updateState(uint16_t inputSignal) override;
 
     // Returns value of the hit force
-    uint8_t getHitVelocity();
+    uint8_t getHitVelocity() const;
 
 private:
-    uint8_t _hitVelocityValue{0};
+    uint8_t _hitVelocityValue{0U};
+
+    IIRFilter _filter{0.1F};
 
     const struct hitValueLimits
     {

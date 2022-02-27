@@ -15,7 +15,7 @@ void ContinuousDrumElement::updateState(uint16_t inputSignal)
     this->_isDrumHit = false;
 }
 
-uint8_t ContinuousDrumElement::getHitVelocity()
+uint8_t ContinuousDrumElement::getHitVelocity() const
 {
     return this->_hitVelocityValue;
 }

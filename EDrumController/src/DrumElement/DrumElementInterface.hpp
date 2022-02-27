@@ -1,32 +1,29 @@
-/*
-  Drums.h - library for electronic drums elements.
-  Created by Jan Sadlek, July 18, 2021.
-*/
 #ifndef DRUM_ELEMENT_H
 #define DRUM_ELEMENT_H
 
+#include "../Utils/Debouncer.hpp"
 #include <stdint.h>
 
 template <typename InputType>
 class DrumElementBase
 {
 public:
-    DrumElementBase()
+    DrumElementBase(uint8_t midiSignal)
         : _isDrumHit{false}
-        , _midiSignal()
+        , _midiSignal(midiSignal)
     { }
 
     // update state of drum element
     virtual void updateState(InputType inputSignal) = 0;
 
     // returns state of drum (true - hit, false - not hit)
-    virtual bool isDrumHit()
+    virtual bool isDrumHit() const
     {
         return this->_isDrumHit;
     }
 
     // Returns midi signal value
-    virtual uint8_t getMidiSignalValue()
+    virtual uint8_t getMidiSignalValue() const
     {
         return this->_midiSignal;
     }

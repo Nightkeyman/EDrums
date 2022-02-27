@@ -1,6 +1,8 @@
 # add the executable
 add_executable(drumtests 
     test/TestDrumElement.cpp
+    test/TestDebouncer.cpp
+    test/TestFilter.cpp
     src/DrumController/DrumController.cpp
     src/DrumElement/ContinuousDrumElement.cpp
 )
@@ -9,9 +11,10 @@ add_executable(drumtests
 add_subdirectory(test/googletest)
 include_directories(
     googletest/include
+    src/Utils
     src/DrumController
     src/DrumElement
-    src/Debouncer
+    src/Other
 )
 
 # target libraries
