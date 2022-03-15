@@ -18,19 +18,31 @@ public:
     virtual void updateState(const uint16_t inputSignal) override;
 
 private:
-    // Returns value of the hit force
+    // Returns value of the hit force based on current value
     uint16_t getHitVelocity() const;
 
-    bool isSignalAboveTreshold(const uint16_t inputSignal) const;
+    // checks if signal is above the treshold
+    bool isSignalAboveThreshold(const uint16_t inputSignal) const;
 
-    bool isPeakReached(const uint16_t currentValue);
+    // Returns true if value was bigger in previous cycle
+    bool wasPeakReached(const uint16_t currentValue) const;
 
+    // processes current value - filters, offsets, gets absolute value
     int getProcessedValue(const uint16_t inputSignal);
 
+    // current output value
     uint8_t _hitVelocityValue{0U};
+
+    // signal IIR filter
     IIRFilter _filter{0.1F};
+
+    // signal debouncer
     Debouncer<int> _debouncer{20};
+
+    // hit block flag - semaphor
     bool _isHitBlocked{false};
+
+    // input value from previous cycle
     uint16_t _previousValue{0U};
 
     const struct hitValues

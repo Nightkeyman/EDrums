@@ -29,7 +29,7 @@ public:
     }
 
 protected:
-    // returns state of drum (true - hit, false - not hit)
+    // calls drum hit function with the argument value
     void hitDrum(const uint16_t hitVelocity)
     {
         this->sendMidiMessage(noteON, this->_midiSignal, hitVelocity);
