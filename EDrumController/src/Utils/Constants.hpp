@@ -1,3 +1,8 @@
+#ifndef CONST_H
+#define CONST_H
+
+#include <stdint.h>
+
 // MIDI defines
 #define MOMENTARY 0
 #define LATCHING 1
@@ -33,3 +38,5 @@ constexpr uint8_t noteON = 144; //144 = 10010000 in binary, note on command
 constexpr uint8_t noteOFF = 128; //128 = 10000000 in binary, note off command
 
 constexpr uint8_t debounce_cnt = 30U;
+
+#endif // CONST_H

@@ -1,37 +1,43 @@
 #ifndef CONT_DRUM_ELEM_H
 #define CONT_DRUM_ELEM_H
 
+#include "../Utils/Debouncer.hpp"
 #include "../Utils/IIRFilter.hpp"
 #include "DrumElementInterface.hpp"
+#include "math.h"
+#include "stdlib.h"
 
 class ContinuousDrumElement : public DrumElementBase<uint16_t>
 {
 public:
     ContinuousDrumElement(uint16_t idleSignal, uint8_t midiSignal)
-        : _drumLimits{static_cast<uint16_t>(idleSignal - 20U),
-                      static_cast<uint16_t>(idleSignal),
-                      static_cast<uint16_t>(idleSignal + 20U)}
+        : _idleValues{10U, static_cast<uint16_t>(idleSignal)}
         , DrumElementBase(midiSignal)
     { }
 
-    ContinuousDrumElement() = default;
-
-    virtual void updateState(uint16_t inputSignal) override;
-
-    // Returns value of the hit force
-    uint8_t getHitVelocity() const;
+    virtual void updateState(const uint16_t inputSignal) override;
 
 private:
+    // Returns value of the hit force
+    uint16_t getHitVelocity() const;
+
+    bool isSignalAboveTreshold(const uint16_t inputSignal) const;
+
+    bool isPeakReached(const uint16_t currentValue);
+
+    int getProcessedValue(const uint16_t inputSignal);
+
     uint8_t _hitVelocityValue{0U};
-
     IIRFilter _filter{0.1F};
+    Debouncer<int> _debouncer{20};
+    bool _isHitBlocked{false};
+    uint16_t _previousValue{0U};
 
-    const struct hitValueLimits
+    const struct hitValues
     {
-        uint16_t max;
+        uint16_t offset;
         uint16_t centre;
-        uint16_t min;
-    } _drumLimits;
+    } _idleValues;
 };
 
 #endif // CONT_DRUM_ELEM_H

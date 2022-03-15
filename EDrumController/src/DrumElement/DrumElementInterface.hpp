@@ -1,8 +1,14 @@
 #ifndef DRUM_ELEMENT_H
 #define DRUM_ELEMENT_H
 
-#include "../Utils/Debouncer.hpp"
+#include "../Utils/Constants.hpp"
 #include <stdint.h>
+
+#if GTEST_BUILD == 1
+#    include "../Utils/FakeSerial.hpp"
+#else
+#    include "Arduino.h"
+#endif
 
 template <typename InputType>
 class DrumElementBase
@@ -17,20 +23,30 @@ public:
     virtual void updateState(InputType inputSignal) = 0;
 
     // returns state of drum (true - hit, false - not hit)
-    virtual bool isDrumHit() const
+    bool isDrumHit() const
     {
         return this->_isDrumHit;
     }
 
-    // Returns midi signal value
-    virtual uint8_t getMidiSignalValue() const
+protected:
+    // returns state of drum (true - hit, false - not hit)
+    void hitDrum(const uint16_t hitVelocity)
     {
-        return this->_midiSignal;
+        this->sendMidiMessage(noteON, this->_midiSignal, hitVelocity);
     }
 
-protected:
-    const uint8_t _midiSignal;
     bool _isDrumHit{false};
+
+private:
+    //send MIDI message through USB port
+    void sendMidiMessage(const uint8_t command, const uint8_t MIDInote, const uint16_t MIDIvelocity)
+    {
+        Serial.write(command); //send note on or note off command
+        Serial.write(MIDInote); //send pitch data
+        Serial.write(MIDIvelocity); //send velocity data
+    }
+
+    const uint8_t _midiSignal;
 };
 
 #endif // DRUM_ELEMENT_H

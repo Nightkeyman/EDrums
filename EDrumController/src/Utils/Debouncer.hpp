@@ -14,9 +14,9 @@ template <typename ValueType>
 class Debouncer
 {
 public:
-    Debouncer(uint8_t cycles)
-        : _debounceCycles(cycles)
-        , _cycleCounter(cycles)
+    Debouncer(uint8_t debounceCycles)
+        : _debounceCycles(debounceCycles)
+        , _cycleCounter(debounceCycles)
     { }
 
     void updateState(ValueType currentValue)

@@ -22,10 +22,11 @@ Using VS Code "Arduino" plugin by Microsoft.
 
 ## Build Unit Tests via CMake
 
-Tools:
+Prerequisite:
 - googletest folder added as subfolder to EdrumController/test
 - CMake
 - Make
+- Created env variable "ARDUINO_LIBRARIES" - which is set to path to Arduino libraries directory
 
 Commands for the GCC unit test build:
 ```console

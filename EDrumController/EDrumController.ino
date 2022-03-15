@@ -1,6 +1,6 @@
 #include "src/DrumController/DrumController.hpp"
 #include "src/DrumElement/ContinuousDrumElement.hpp"
-#include "src/Other/Constants.hpp"
+#include "src/Utils/Constants.hpp"
 #include <MIDI.h>
 
 //************ VARIABLES ************//
@@ -58,10 +58,6 @@ void loop()
     // END input data read //
 
     crashCymbal.updateState(crashHit);
-    if(crashCymbal.isDrumHit() == true)
-    {
-        MIDImessage(noteON, CRASH_SIGNAL, crashCymbal.getHitVelocity());
-    }
 
     // HIHAT with PEDAL
     //unsigned int hihatHit = analogRead(HIHAT_PIN);
