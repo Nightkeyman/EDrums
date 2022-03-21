@@ -7,8 +7,9 @@
 class IIRFilter
 {
 public:
-    IIRFilter(float filterParameter)
+    IIRFilter(float filterParameter, float initialValue = 0.0F)
         : _filterParameter(filterParameter)
+        , _previousOutput(initialValue)
     { }
 
     float getUpdatedOutput(float updatedInput)
@@ -21,7 +22,7 @@ public:
     }
 
 private:
-    float _previousOutput{0.0F};
+    float _previousOutput;
     const float _filterParameter;
 };
 

@@ -15,17 +15,17 @@ class DrumElementBase
 {
 public:
     DrumElementBase(uint8_t midiSignal)
-        : _isDrumHit{false}
+        : _isHitBlocked{true}
         , _midiSignal(midiSignal)
     { }
 
     // update state of drum element
     virtual void updateState(InputType inputSignal) = 0;
 
-    // returns state of drum (true - hit, false - not hit)
-    bool isDrumHit() const
+    // returns true if drum was recently hit
+    virtual bool wasDrumHit() const
     {
-        return this->_isDrumHit;
+        return (this->_isHitBlocked == true);
     }
 
 protected:
@@ -35,7 +35,8 @@ protected:
         this->sendMidiMessage(noteON, this->_midiSignal, hitVelocity);
     }
 
-    bool _isDrumHit{false};
+    // hit block flag - semaphor
+    bool _isHitBlocked;
 
 private:
     //send MIDI message through USB port

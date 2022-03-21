@@ -6,11 +6,13 @@ void ContinuousDrumElement::updateState(const uint16_t inputSignal)
     uint16_t currentValue = this->getProcessedValue(inputSignal);
     // check if signal is above the threshold
     const bool isSignalAboveTreshold = this->isSignalAboveThreshold(currentValue);
+    this->_debouncer.updateState(static_cast<int>(isSignalAboveTreshold));
     // check if semaphor flag is set
     if(this->_isHitBlocked == false)
     {
         // looking for the first peak after hit
-        if(this->wasPeakReached(currentValue) & isSignalAboveTreshold)
+        const bool wasPeakReached = this->wasPeakReached(currentValue);
+        if(wasPeakReached && isSignalAboveTreshold)
         {
             this->hitDrum(this->getHitVelocity());
             // block next hit
@@ -19,7 +21,6 @@ void ContinuousDrumElement::updateState(const uint16_t inputSignal)
     }
     else // if hit is blocked, debounce the state until its stable and idle
     {
-        this->_debouncer.updateState(static_cast<int>(isSignalAboveTreshold));
         const bool isStateStable = (this->_debouncer.getState() == DebounceState::Stable);
         if(isStateStable & !isSignalAboveTreshold)
         {
@@ -37,7 +38,7 @@ int ContinuousDrumElement::getProcessedValue(const uint16_t inputSignal)
     // centering to idle signal
     const float offsetSignal = filteredSignal - this->_idleValues.centre;
     // making the signal only positive
-    const float aboluteSignal = abs(filteredSignal);
+    const float aboluteSignal = abs(offsetSignal);
     // return fully processed signal
     return static_cast<int>(aboluteSignal);
 }
@@ -49,7 +50,7 @@ bool ContinuousDrumElement::wasPeakReached(const uint16_t currentValue) const
     {
         isPeakedReached = true;
     }
-    return true;
+    return isPeakedReached;
 }
 
 bool ContinuousDrumElement::isSignalAboveThreshold(const uint16_t inputSignal) const
@@ -62,8 +63,22 @@ bool ContinuousDrumElement::isSignalAboveThreshold(const uint16_t inputSignal) c
     return isSignalAboveTreshold;
 }
 
-uint16_t ContinuousDrumElement::getHitVelocity() const
+uint8_t ContinuousDrumElement::getHitVelocity() const
 {
     // previous value was the peak of the signal
-    return this->_previousValue;
+    uint8_t limitedValue = this->getLimitedValue<uint8_t>(this->_previousValue, MIDI_MAX_VALUE);
+    return limitedValue;
+}
+
+template <typename ValueType>
+ValueType ContinuousDrumElement::getLimitedValue(const ValueType inputValue,
+                                                 const ValueType limit) const
+{
+    // previous value was the peak of the signal
+    uint16_t limitedValue = inputValue;
+    if(limitedValue > limit)
+    {
+        limitedValue = limit;
+    }
+    return limitedValue;
 }

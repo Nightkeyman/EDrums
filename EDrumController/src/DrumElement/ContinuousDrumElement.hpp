@@ -11,16 +11,18 @@ class ContinuousDrumElement : public DrumElementBase<uint16_t>
 {
 public:
     ContinuousDrumElement(uint16_t idleSignal, uint8_t midiSignal)
-        : _idleValues{10U, static_cast<uint16_t>(idleSignal)}
+        : _idleValues{6U, static_cast<uint16_t>(idleSignal)}
+        , _previousValue{idleSignal}
         , DrumElementBase(midiSignal)
+        , _filter(0.2F, idleSignal)
     { }
 
     virtual void updateState(const uint16_t inputSignal) override;
 
-private:
     // Returns value of the hit force based on current value
-    uint16_t getHitVelocity() const;
+    uint8_t getHitVelocity() const;
 
+private:
     // checks if signal is above the treshold
     bool isSignalAboveThreshold(const uint16_t inputSignal) const;
 
@@ -33,17 +35,17 @@ private:
     // current output value
     uint8_t _hitVelocityValue{0U};
 
+    template <typename ValueType>
+    ValueType getLimitedValue(const ValueType inputValue, const ValueType limit) const;
+
     // signal IIR filter
-    IIRFilter _filter{0.1F};
+    IIRFilter _filter;
 
     // signal debouncer
-    Debouncer<int> _debouncer{20};
-
-    // hit block flag - semaphor
-    bool _isHitBlocked{false};
+    Debouncer<int> _debouncer{40};
 
     // input value from previous cycle
-    uint16_t _previousValue{0U};
+    uint16_t _previousValue;
 
     const struct hitValues
     {

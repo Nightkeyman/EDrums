@@ -1,5 +1,5 @@
 # add the executable
-add_executable(drumtests 
+add_executable(drums_unittest
     test/TestDrumElement.cpp
     test/TestDebouncer.cpp
     test/TestFilter.cpp
@@ -23,4 +23,4 @@ include_directories(
 )
 
 # target libraries
-target_link_libraries(drumtests PRIVATE gtest)
+target_link_libraries(drums_unittest PRIVATE gtest)
