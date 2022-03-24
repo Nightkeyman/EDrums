@@ -4,13 +4,13 @@ import os
 
 
 # CONFIGURABLE VARIABLES
-test_file_name = '2HitsTests_FourTimes_CymbalCrash_NoDelay.txt'
+test_file_name = 'tom.txt'
 x1_marker = 0
-x2_marker = 30000
+x2_marker = 40000
 y_lower = 0
-y_higher = 200
+y_higher = 400
 param = 0.2
-idle = 338.0
+idle = 383.0
 
 ##### Test Values ######
 values = []
@@ -20,7 +20,7 @@ f = open(os.path.join(cwd, test_file_name),'r')
 for row in f:
     try:
         rowAsNumber = float(row)
-    except ValueError:
+    except (ValueError, NameError):
         print("Value error occured")
     values.append(rowAsNumber)
 

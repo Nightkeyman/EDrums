@@ -19,6 +19,9 @@ volatile int kickFlag = 0;
 volatile int kickTim = 0;
 
 ContinuousDrumElement crashCymbal(CRASH_MID_VAL, CRASH_SIGNAL);
+ContinuousDrumElement kickDrum(KICK_IDLE_VALUE, CRASH_SIGNAL);
+
+DrumController controller;
 
 //************ ***** ************//
 //************ SETUP ************//
@@ -33,6 +36,7 @@ void setup()
     // pinMode(KICK_PIN, INPUT); - TODO kick pin is the same as hihat pedal pin?
     pinMode(HIHAT_PEDAL_PIN, INPUT);
     pinMode(HIHAT_PIN, INPUT);
+    controller.init();
 }
 
 //************ **** ************//
@@ -40,47 +44,15 @@ void setup()
 //************ **** ************//
 void loop()
 {
-    // CRASH CYMBAL WITH CHOKE
+    // CRASH CYMBAL
     uint16_t crashHit = analogRead(CRASH_PIN);
-    if(crashHit < CRASH_MIN_VAL || crashHit > CRASH_MAX_VAL)
-    {
-        hitCrash(crashHit);
-    }
-    if(digitalRead(CHOKE_PIN) == 0)
-    {
-        chokeCrash(); // add semaphor
-    }
-
-    // START input data read //
-    //
-    /*  */
-    //
-    // END input data read //
-
     crashCymbal.updateState(crashHit);
 
-    // HIHAT with PEDAL
-    //unsigned int hihatHit = analogRead(HIHAT_PIN);
-    //if(hihatHit < 439){// || hihatHit > 460) {  // level on 441-444, mini= 0, maxi = 850
-    //  hitHihat(hihatHit);
-    //}
-    /*if(digitalRead(HIHAT_PEDAL_PIN) == 0) {
-    hihatPedal(); //dorobic semafor
-    }*/
+    // kick
+    uint16_t kickHit = analogRead(CRASH_PIN);
+    crashCymbal.updateState(kickHit);
 
-    // KICK DRUM
-    /*
-    if(kickFlag == 1) {
-      kickTim++;
-      if(kickTim > 50 && digitalRead(KICK_PIN) == 1) {
-        kickFlag = 0;
-        delay(10);
-      }
-    }
-    if((!digitalRead(KICK_PIN)) && (kickFlag == 0)) {
-      kickDrum();
-      //while(!digitalRead(KICK_PIN));
-    }*/
+    controller.cycle();
 }
 
 //************ FUNCTIONS ************//
@@ -147,7 +119,7 @@ void chokeCrash()
 void kickDrum()
 {
     unsigned int cnt = 0;
-    MIDImessage(noteON, KICK_SIGNAL, 100);
+    MIDImessage(noteON, KICK_MIDI_SIGNAL, 100);
     while(cnt < 15)
     {
         if(digitalRead(KICK_PIN) == 0)

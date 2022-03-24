@@ -11,7 +11,7 @@ class ContinuousDrumElement : public DrumElementBase<uint16_t>
 {
 public:
     ContinuousDrumElement(uint16_t idleSignal, uint8_t midiSignal)
-        : _idleValues{6U, static_cast<uint16_t>(idleSignal)}
+        : _idleValues{4U, static_cast<uint16_t>(idleSignal)}
         , _previousValue{idleSignal}
         , DrumElementBase(midiSignal)
         , _filter(0.2F, idleSignal)
@@ -32,17 +32,18 @@ private:
     // processes current value - filters, offsets, gets absolute value
     int getProcessedValue(const uint16_t inputSignal);
 
-    // current output value
-    uint8_t _hitVelocityValue{0U};
-
+    // returns saturated value
     template <typename ValueType>
     ValueType getLimitedValue(const ValueType inputValue, const ValueType limit) const;
+
+    // current output value
+    uint8_t _hitVelocityValue{0U};
 
     // signal IIR filter
     IIRFilter _filter;
 
     // signal debouncer
-    Debouncer<int> _debouncer{40};
+    Debouncer<int> _debouncer{debounceCycles};
 
     // input value from previous cycle
     uint16_t _previousValue;

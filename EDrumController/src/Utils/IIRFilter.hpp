@@ -3,7 +3,10 @@
 
 #include <stdint.h>
 
-// infinite response filter class
+/**
+ * @brief Infinite response filter class
+ *        Ts ~= 0.5ms, T_0.632 = (1/a) * Ts
+ */
 class IIRFilter
 {
 public:

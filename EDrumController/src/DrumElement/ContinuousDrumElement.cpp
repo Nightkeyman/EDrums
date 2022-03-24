@@ -12,7 +12,8 @@ void ContinuousDrumElement::updateState(const uint16_t inputSignal)
     {
         // looking for the first peak after hit
         const bool wasPeakReached = this->wasPeakReached(currentValue);
-        if(wasPeakReached && isSignalAboveTreshold)
+        // check if peak was above the treshold (previous value)
+        if(wasPeakReached && this->isSignalAboveThreshold(this->_previousValue))
         {
             this->hitDrum(this->getHitVelocity());
             // block next hit
