@@ -2,6 +2,7 @@
 #define DRUM_ELEMENT_H
 
 #include "../Utils/Constants.hpp"
+#include "../Utils/Debouncer.hpp"
 #include <stdint.h>
 
 #if GTEST_BUILD == 1
@@ -28,9 +29,12 @@ public:
         return (this->_isHitBlocked == true);
     }
 
+    // Returns value of the hit force based on current value
+    virtual uint8_t getHitVelocity() const = 0;
+
 protected:
     // calls drum hit function with the argument value
-    void hitDrum(const uint16_t hitVelocity)
+    void hitDrum(const uint8_t hitVelocity)
     {
         this->sendMidiMessage(noteON, this->_midiSignal, hitVelocity);
     }
@@ -38,9 +42,12 @@ protected:
     // hit block flag - semaphor
     bool _isHitBlocked;
 
+    // signal debouncer
+    Debouncer<bool> _debouncer{debounceCycles};
+
 private:
     //send MIDI message through USB port
-    void sendMidiMessage(const uint8_t command, const uint8_t MIDInote, const uint16_t MIDIvelocity)
+    void sendMidiMessage(const uint8_t command, const uint8_t MIDInote, const uint8_t MIDIvelocity)
     {
         Serial.write(command); //send note on or note off command
         Serial.write(MIDInote); //send pitch data

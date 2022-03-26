@@ -9,7 +9,7 @@
 class TestContinuousDrumElement : public ::testing::Test
 {
 protected:
-    void debounceToValue(uint16_t value, ContinuousDrumElement& drum, uint16_t idleState)
+    void debounceToValue(ContinuousDrumElement& drum, uint16_t idleState)
     {
         for(auto i = 0; i < 200; i++)
         {
@@ -24,7 +24,7 @@ protected:
         volatile unsigned int hitCounter = 0;
         bool previousState = true;
 
-        for(int i = 0; i < indata.size(); i++)
+        for(auto i = 0U; i < indata.size(); i++)
         {
             drum.updateState(indata.at(i));
             if((previousState == false) && (drum.wasDrumHit() == true))
@@ -78,7 +78,7 @@ TEST_F(TestCrashCymbal, initialState)
 
 TEST_F(TestCrashCymbal, updatedState_exactCycles)
 {
-    debounceToValue(CRASH_MID_VAL, crash, CRASH_MID_VAL);
+    debounceToValue(crash, CRASH_MID_VAL);
     EXPECT_EQ(crash.wasDrumHit(), false);
 }
 
@@ -134,12 +134,13 @@ TEST_F(TestCrashCymbal, Crash_NumberOfHits_ManyDelicateHits)
 class TestTomDrum : public TestContinuousDrumElement
 {
 protected:
-    ContinuousDrumElement tom{KICK_IDLE_VALUE, KICK_MIDI_SIGNAL};
+    const uint16_t testIdleValue = 383U;
+    ContinuousDrumElement tom{testIdleValue, KICK_MIDI_SIGNAL};
 };
 
 TEST_F(TestTomDrum, UpdatedState_exactCycles)
 {
-    debounceToValue(KICK_IDLE_VALUE, tom, KICK_IDLE_VALUE);
+    debounceToValue(tom, testIdleValue);
     EXPECT_EQ(tom.wasDrumHit(), false);
 }
 
@@ -154,7 +155,7 @@ TEST_F(TestTomDrum, Tom_NumberOfHits_9Hits)
 TEST_F(TestTomDrum, InitialState_Value)
 {
     std::vector<int> indata;
-    debounceToValue(KICK_IDLE_VALUE, tom, KICK_IDLE_VALUE);
+    debounceToValue(tom, testIdleValue);
 
     EXPECT_EQ(tom.getHitVelocity(), 0U);
 }

@@ -11,8 +11,8 @@ class IIRFilter
 {
 public:
     IIRFilter(float filterParameter, float initialValue = 0.0F)
-        : _filterParameter(filterParameter)
-        , _previousOutput(initialValue)
+        : _previousOutput(initialValue)
+        , _filterParameter(filterParameter)
     { }
 
     float getUpdatedOutput(float updatedInput)

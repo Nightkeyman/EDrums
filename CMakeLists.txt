@@ -7,6 +7,7 @@ set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test)
 set(CMAKE_BUILD_TYPE "Debug")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY test)
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")
 
 # include directories
 add_subdirectory(EDrumController)

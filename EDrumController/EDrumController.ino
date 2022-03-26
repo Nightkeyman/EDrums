@@ -1,7 +1,10 @@
 #include "src/DrumController/DrumController.hpp"
+#include "src/DrumElement/BinaryElement.hpp"
+#include "src/DrumElement/ContinuousDrumBinarizer.hpp"
 #include "src/DrumElement/ContinuousDrumElement.hpp"
 #include "src/Utils/Constants.hpp"
 #include <MIDI.h>
+
 
 //************ VARIABLES ************//
 
@@ -18,8 +21,9 @@ volatile int kickState = 0;
 volatile int kickFlag = 0;
 volatile int kickTim = 0;
 
+BinaryDrumElement crashChoke(1U, CHOKE_SIGNAL);
 ContinuousDrumElement crashCymbal(CRASH_MID_VAL, CRASH_SIGNAL);
-ContinuousDrumElement kickDrum(KICK_IDLE_VALUE, CRASH_SIGNAL);
+ContinuousDrumBinarizer kickDrum(KICK_IDLE_VALUE, KICK_MIDI_SIGNAL);
 
 DrumController controller;
 
@@ -50,7 +54,7 @@ void loop()
 
     // kick
     uint16_t kickHit = analogRead(CRASH_PIN);
-    crashCymbal.updateState(kickHit);
+    kickDrum.updateState(kickHit);
 
     controller.cycle();
 }
@@ -116,25 +120,10 @@ void chokeCrash()
     delay(6);
 }
 
-void kickDrum()
-{
-    unsigned int cnt = 0;
-    MIDImessage(noteON, KICK_MIDI_SIGNAL, 100);
-    while(cnt < 15)
-    {
-        if(digitalRead(KICK_PIN) == 0)
-        { // wait until its under specific level
-            cnt++;
-        }
-        delay(1);
-    }
-    kickFlag = 1;
-}
-
 void debounce(int pin, int max_val, int min_val)
 {
     unsigned int val = 0, cnt = 0;
-    while(cnt < debounce_cnt)
+    while(cnt < debounceCycles)
     {
         val = analogRead(pin);
         if((val < max_val) && (val > min_val))

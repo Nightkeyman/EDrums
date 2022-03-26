@@ -4,8 +4,11 @@ add_executable(drums_unittest
     test/TestDebouncer.cpp
     test/TestFilter.cpp
     test/TestContinuousDrumElement.cpp
+    test/TestContinuousDrumBinarizer.cpp
     src/DrumController/DrumController.cpp
     src/DrumElement/ContinuousDrumElement.cpp
+    src/DrumElement/BinaryElement.cpp
+    src/DrumElement/ContinuousDrumBinarizer.cpp
     # Workaround for providing dummy "Serial" definition
     test/helpers/FakeSerial.cpp
 )

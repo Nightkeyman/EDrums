@@ -20,16 +20,16 @@ constexpr uint16_t NOTE_OFF = 128U;
 constexpr uint16_t MIDI_MAX_VALUE = 127U;
 
 // CRASH
-constexpr uint16_t CHOKE_SIGNAL = 58U;
-constexpr uint16_t CRASH_SIGNAL = 57U;
+constexpr uint8_t CHOKE_SIGNAL = 58U;
+constexpr uint8_t CRASH_SIGNAL = 57U;
 constexpr uint16_t CRASH_MIN_VAL = 320U;
 constexpr uint16_t CRASH_MAX_VAL = 370U;
 constexpr uint16_t CRASH_MID_VAL = 338U;
 constexpr float CRASH_COEF = 0.4F;
 
 // KICK
-constexpr uint16_t KICK_IDLE_VALUE = 383U;
-constexpr uint16_t KICK_MIDI_SIGNAL = 35U;
+constexpr uint16_t KICK_IDLE_VALUE = 513U;
+constexpr uint8_t KICK_MIDI_SIGNAL = 35U;
 constexpr uint16_t KICK_PIN = 3U;
 
 // HI-HAT

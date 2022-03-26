@@ -6,32 +6,20 @@
 class BinaryDrumElement : public DrumElementBase<bool>
 {
 public:
-    virtual void updateState(bool inputSignal) override
-    {
-        // if (debouncer.getState == Stable)
-        // {
-        //     if(inputSignal < CRASH_MIN_VAL || inputSignal > CRASH_MAX_VAL)
-        //     {
-        //         hitCrash(crashHit);
-        //     }
-        // }
-        this->_hitVelocityValue = inputSignal;
-    }
+    BinaryDrumElement(const uint8_t hitValue, uint8_t midiSignal);
+
+    void updateState(const bool inputSignal) override;
 
     // Returns value of the hit force
-    virtual uint8_t getHitVelocity()
-    {
-        return this->_hitVelocityValue;
-    }
+    uint8_t getHitVelocity() const override;
 
 private:
-    uint8_t _hitVelocityValue{0};
+    bool isFallingEdge(bool currentState) const;
 
-    const struct hitValueLimits
-    {
-        uint16_t max;
-        uint16_t min;
-    } _drumLimits;
+    uint8_t _hitValue;
+
+    // input value from previous cycle
+    bool _previousState;
 };
 
 #endif // BINARY_DRUM_ELEM_H

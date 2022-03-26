@@ -1,3 +1,4 @@
+#include "../Utils/CalculationHelpers.hpp"
 #include "ContinuousDrumElement.hpp"
 
 void ContinuousDrumElement::updateState(const uint16_t inputSignal)
@@ -6,7 +7,7 @@ void ContinuousDrumElement::updateState(const uint16_t inputSignal)
     uint16_t currentValue = this->getProcessedValue(inputSignal);
     // check if signal is above the threshold
     const bool isSignalAboveTreshold = this->isSignalAboveThreshold(currentValue);
-    this->_debouncer.updateState(static_cast<int>(isSignalAboveTreshold));
+    this->_debouncer.updateState(isSignalAboveTreshold);
     // check if semaphor flag is set
     if(this->_isHitBlocked == false)
     {
@@ -67,19 +68,6 @@ bool ContinuousDrumElement::isSignalAboveThreshold(const uint16_t inputSignal) c
 uint8_t ContinuousDrumElement::getHitVelocity() const
 {
     // previous value was the peak of the signal
-    uint8_t limitedValue = this->getLimitedValue<uint8_t>(this->_previousValue, MIDI_MAX_VALUE);
-    return limitedValue;
-}
-
-template <typename ValueType>
-ValueType ContinuousDrumElement::getLimitedValue(const ValueType inputValue,
-                                                 const ValueType limit) const
-{
-    // previous value was the peak of the signal
-    uint16_t limitedValue = inputValue;
-    if(limitedValue > limit)
-    {
-        limitedValue = limit;
-    }
+    uint8_t limitedValue = getLimitedValue<uint8_t>(this->_previousValue, MIDI_MAX_VALUE);
     return limitedValue;
 }
