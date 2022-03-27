@@ -8,11 +8,11 @@ constexpr uint16_t MOMENTARY = 0U;
 constexpr uint16_t LATCHING = 1U;
 #define MODE MOMENTARY
 // PINS
-constexpr uint16_t NUM_KEYS = 16U;
 #define CRASH_PIN A0
+#define HIHAT_PIN A1
+constexpr uint16_t NUM_KEYS = 16U;
 constexpr uint16_t CHOKE_PIN = 2U; // usable for interrupts on NANO
 constexpr uint16_t HIHAT_PEDAL_PIN = 3U;
-#define HIHAT_PIN A1
 
 // SIGNALS
 constexpr uint16_t NOTE_ON = 144U;
@@ -30,7 +30,7 @@ constexpr float CRASH_COEF = 0.4F;
 // KICK
 constexpr uint16_t KICK_IDLE_VALUE = 513U;
 constexpr uint8_t KICK_MIDI_SIGNAL = 35U;
-constexpr uint16_t KICK_PIN = 3U;
+#define KICK_PIN A1
 
 // HI-HAT
 constexpr uint16_t HIHAT_PEDAL_SIGNAL = 65U;

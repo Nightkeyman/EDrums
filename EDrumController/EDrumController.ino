@@ -22,8 +22,8 @@ volatile int kickFlag = 0;
 volatile int kickTim = 0;
 
 BinaryDrumElement crashChoke(1U, CHOKE_SIGNAL);
-ContinuousDrumElement crashCymbal(CRASH_MID_VAL, CRASH_SIGNAL);
-ContinuousDrumBinarizer kickDrum(KICK_IDLE_VALUE, KICK_MIDI_SIGNAL);
+ContinuousDrumBinarizer crashCymbal(384U, KICK_MIDI_SIGNAL, 3U);
+ContinuousDrumBinarizer kickDrum(KICK_IDLE_VALUE, KICK_MIDI_SIGNAL, 1U);
 
 DrumController controller;
 
@@ -39,7 +39,7 @@ void setup()
     pinMode(CHOKE_PIN, INPUT);
     // pinMode(KICK_PIN, INPUT); - TODO kick pin is the same as hihat pedal pin?
     pinMode(HIHAT_PEDAL_PIN, INPUT);
-    pinMode(HIHAT_PIN, INPUT);
+    pinMode(KICK_PIN, INPUT);
     controller.init();
 }
 
@@ -53,7 +53,7 @@ void loop()
     crashCymbal.updateState(crashHit);
 
     // kick
-    uint16_t kickHit = analogRead(CRASH_PIN);
+    uint16_t kickHit = analogRead(KICK_PIN);
     kickDrum.updateState(kickHit);
 
     controller.cycle();
