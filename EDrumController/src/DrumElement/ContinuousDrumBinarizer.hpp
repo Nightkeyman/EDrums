@@ -6,8 +6,10 @@
 class ContinuousDrumBinarizer : public ContinuousDrumElement
 {
 public:
-    ContinuousDrumBinarizer(uint16_t idleSignal, uint8_t midiSignal)
-        : ContinuousDrumElement(idleSignal, midiSignal)
+    ContinuousDrumBinarizer(uint16_t idleSignal,
+                            uint8_t midiSignal,
+                            uint16_t idleOffset = defaultIdleOffset)
+        : ContinuousDrumElement(idleSignal, midiSignal, idleOffset)
     { }
 
     uint8_t getHitVelocity() const override;

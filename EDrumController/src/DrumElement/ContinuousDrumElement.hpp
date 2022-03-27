@@ -9,11 +9,13 @@
 class ContinuousDrumElement : public DrumElementBase<uint16_t>
 {
 public:
-    ContinuousDrumElement(uint16_t idleSignal, uint8_t midiSignal)
+    ContinuousDrumElement(uint16_t idleSignal,
+                          uint8_t midiSignal,
+                          uint16_t idleOffset = defaultIdleOffset)
         : DrumElementBase(midiSignal)
         , _filter(0.2F, idleSignal)
         , _previousValue{idleSignal}
-        , _idleValues{4U, static_cast<uint16_t>(idleSignal)}
+        , _idleValues{idleOffset, static_cast<uint16_t>(idleSignal)}
     { }
 
     void updateState(const uint16_t inputSignal) override;

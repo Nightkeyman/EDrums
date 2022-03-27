@@ -45,5 +45,6 @@ constexpr uint8_t noteON = 144U; //144 = 10010000 in binary, note on command
 constexpr uint8_t noteOFF = 128U; //128 = 10000000 in binary, note off command
 
 constexpr uint8_t debounceCycles = 100U;
+constexpr uint16_t defaultIdleOffset = 4U;
 
 #endif // CONST_H

@@ -4,13 +4,13 @@ import os
 
 
 # CONFIGURABLE VARIABLES
-test_file_name = 'tom.txt'
+test_file_name = 'tom_withStick.txt'
 x1_marker = 0
 x2_marker = 40000
 y_lower = 0
 y_higher = 400
 param = 0.2
-idle = 383.0
+idle = 513.0
 
 ##### Test Values ######
 values = []
@@ -43,7 +43,7 @@ yaxis = np.array(values)
 plt.subplot(1, 3, 1)
 plt.title("Unfiltered values")
 plt.plot(yaxis)
-plt.ylim([250, 450])
+#plt.ylim([250, 450])
 plt.xlim([x1_marker, x2_marker])
 
 # Y axis parameter:
@@ -52,7 +52,7 @@ yaxisFiltered = np.array(filteredValues)
 plt.subplot(1, 3, 2)
 plt.title("Values filtered by IIR")
 plt.plot(yaxisFiltered)
-plt.ylim([250, 450])
+#plt.ylim([250, 450])
 plt.xlim([x1_marker, x2_marker])
 
 # Y axis parameter:

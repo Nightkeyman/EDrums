@@ -1,4 +1,4 @@
-#define DATA_PIN A0
+#define DATA_PIN A1
 
 void setup() {
   Serial.begin(115200);
