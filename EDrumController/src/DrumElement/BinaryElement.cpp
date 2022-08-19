@@ -11,24 +11,26 @@ BinaryDrumElement::BinaryDrumElement(const uint8_t hitValue, uint8_t midiSignal)
 void BinaryDrumElement::updateState(const bool inputSignal)
 {
     this->_debouncer.updateState(inputSignal);
-    bool isRisingEdge = this->isFallingEdge(inputSignal);
-    if(this->_isHitBlocked == false)
+    const bool isStateStable = (this->_debouncer.getState() == DebounceState::Stable);
+
+    if(isStateStable)
     {
-        if(isRisingEdge)
+        if(inputSignal == false)
         {
-            this->hitDrum(this->getHitVelocity());
-            // block next hit
-            this->_isHitBlocked = true;
+            // stable and choked - trigger if not blocked
+            if(!this->_isHitBlocked)
+            {
+                this->_isHitBlocked = true;
+                this->hitDrum(this->getHitVelocity());
+            }
         }
-    }
-    else // if hit is blocked, debounce the state until it's stable
-    {
-        const bool isStateStable = (this->_debouncer.getState() == DebounceState::Stable);
-        if(isStateStable)
+        else
         {
             this->_isHitBlocked = false;
         }
     }
+
+    this->_previousState = inputSignal;
 }
 
 // Returns value of the hit force

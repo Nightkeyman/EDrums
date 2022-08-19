@@ -51,11 +51,9 @@ void loop()
     const uint16_t crashHit = analogRead(CRASH_PIN);
     crashCymbal.updateState(crashHit);
 
-    //chokeCrash();
-
     // CHOKE CRASH CYMBAL
-    // const bool crashChokeValue = digitalRead(CHOKE_PIN);
-    // crashChoke.updateState(crashChokeValue);
+    const bool crashChokeValue = digitalRead(CHOKE_PIN);
+    crashChoke.updateState(crashChokeValue);
 
     // kick
     // uint16_t kickHit = analogRead(CRASH_PIN);

@@ -37,13 +37,18 @@ public:
         this->_lastValue = currentValue;
     }
 
+    void updateDebounceCycles(const uint8_t debounceCycles)
+    {
+        this->_debounceCycles = debounceCycles;
+    }
+
     DebounceState getState() const
     {
         return this->_currentDebounceState;
     }
 
 private:
-    const uint8_t _debounceCycles;
+    uint8_t _debounceCycles;
     ValueType _lastValue{0};
     uint8_t _cycleCounter;
     DebounceState _currentDebounceState{DebounceState::Debounce};

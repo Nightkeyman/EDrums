@@ -34,8 +34,7 @@ cd ./Edrums (current folder)
 cmake -S . -B ./build -G "Unix Makefiles"
 cd ./build
 make
-cd ./EdrumController
-./drumtests.exe
+./EdrumController/test/drums_unittest.exe
 ```
 
 ## Drum element algorithm

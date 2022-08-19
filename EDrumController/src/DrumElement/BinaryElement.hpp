@@ -18,6 +18,8 @@ private:
 
     uint8_t _hitValue;
 
+    const uint8_t debounceCyclesAfterHit{10U};
+
     // input value from previous cycle
     bool _previousState;
 };

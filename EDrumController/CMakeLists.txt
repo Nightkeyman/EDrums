@@ -5,6 +5,7 @@ add_executable(drums_unittest
     test/TestFilter.cpp
     test/TestContinuousDrumElement.cpp
     test/TestContinuousDrumBinarizer.cpp
+    test/TestBinaryDrumElement.cpp
     src/DrumController/DrumController.cpp
     src/DrumElement/ContinuousDrumElement.cpp
     src/DrumElement/BinaryElement.cpp
