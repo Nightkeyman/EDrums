@@ -26,7 +26,11 @@ void BinaryDrumElement::updateState(const bool inputSignal)
         }
         else
         {
-            this->_isHitBlocked = false;
+            if(this->_isHitBlocked)
+            {
+                this->_isHitBlocked = false;
+                this->stopDrum();
+            }
         }
     }
 

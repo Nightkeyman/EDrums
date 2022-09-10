@@ -39,6 +39,12 @@ protected:
         this->sendMidiMessage(noteON, this->_midiSignal, hitVelocity);
     }
 
+    // calls drum hit function with the argument value
+    void stopDrum()
+    {
+        this->sendMidiMessage(noteOFF, this->_midiSignal, 0U);
+    }
+
     // hit block flag - semaphor
     bool _isHitBlocked;
 

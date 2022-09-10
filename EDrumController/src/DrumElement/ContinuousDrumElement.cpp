@@ -27,6 +27,7 @@ void ContinuousDrumElement::updateState(const uint16_t inputSignal)
         if(isStateStable & !isSignalAboveTreshold)
         {
             this->_isHitBlocked = false;
+            this->stopDrum();
         }
     }
     // update previous value
@@ -47,12 +48,12 @@ int ContinuousDrumElement::getProcessedValue(const uint16_t inputSignal)
 
 bool ContinuousDrumElement::wasPeakReached(const uint16_t currentValue) const
 {
-    bool isPeakedReached = false;
+    bool isPeakReached = false;
     if(currentValue < this->_previousValue)
     {
-        isPeakedReached = true;
+        isPeakReached = true;
     }
-    return isPeakedReached;
+    return isPeakReached;
 }
 
 bool ContinuousDrumElement::isSignalAboveThreshold(const uint16_t inputSignal) const
@@ -68,6 +69,5 @@ bool ContinuousDrumElement::isSignalAboveThreshold(const uint16_t inputSignal) c
 uint8_t ContinuousDrumElement::getHitVelocity() const
 {
     // previous value was the peak of the signal
-    uint8_t limitedValue = getLimitedValue<uint8_t>(this->_previousValue, MIDI_MAX_VALUE);
-    return limitedValue;
+    return getLimitedValue<uint8_t>(this->_previousValue, MIDI_MAX_VALUE);
 }

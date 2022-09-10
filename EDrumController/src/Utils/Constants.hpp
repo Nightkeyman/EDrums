@@ -44,7 +44,7 @@ constexpr uint8_t velocity = 100U; //velocity of MIDI notes, must be between 0 a
 constexpr uint8_t noteON = 144U; //144 = 10010000 in binary, note on command
 constexpr uint8_t noteOFF = 128U; //128 = 10000000 in binary, note off command
 
-constexpr uint8_t debounceCycles = 50U;
-constexpr uint16_t defaultIdleOffset = 4U;
+constexpr uint8_t debounceCycles = 150U;
+constexpr uint16_t defaultIdleOffset = 8U;
 
 #endif // CONST_H
