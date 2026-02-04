@@ -8,10 +8,32 @@
 // Halt on panic
 use panic_halt as _; // panic handler
 
+use hal::{pac, prelude::*};
 use cortex_m_rt::entry;
 use stm32f4xx_hal::{self as hal, rcc::Config};
 
-use crate::hal::{pac, prelude::*};
+mod constants;
+mod utils {
+    pub mod calculation_helpers;
+    pub mod debouncer;
+    pub mod iir_filter;
+}
+mod drum_controller;
+mod drum_element;
+mod hal_adapter;
+
+pub trait MidiOut {
+    fn send(&mut self, command: u8, note: u8, velocity: u8);
+}
+
+use crate::constants::*;
+use crate::drum_controller::DrumController;
+use crate::drum_element::binary::BinaryDrumElement;
+use crate::drum_element::continuous::ContinuousDrumElement;
+use crate::drum_element::continuous_binarizer::ContinuousDrumBinarizer;
+use crate::drum_element::DrumElement;
+
+use hal_adapter::DummyMidi;
 
 #[entry]
 fn main() -> ! {
@@ -20,18 +42,41 @@ fn main() -> ! {
         cortex_m::peripheral::Peripherals::take(),
     ) {
         // Set up the system clock. We want to run at 48MHz for this one.
-        let mut rcc = dp.RCC.freeze(Config::hsi().sysclk(48.MHz()));
-
-        // Set up the LED. On the Nucleo-446RE it's connected to pin PA5.
-        let gpioa = dp.GPIOA.split(&mut rcc);
-        let mut led = gpioa.pa5.into_push_pull_output();
+        let rcc = dp.RCC.freeze(Config::hsi().sysclk(48.MHz()));
 
         // Create a delay abstraction based on SysTick
         let mut delay = cp.SYST.delay(&rcc.clocks);
 
+        // Hardware init (platform-specific) would go here.
+        let mut midi = DummyMidi;
+
+        // Create drum elements mirroring original Arduino sketch
+        let mut crash_choke = BinaryDrumElement::new(1u8, CHOKE_SIGNAL);
+        let mut crash_cymbal =
+            ContinuousDrumElement::new(CRASH_MID_VAL, CRASH_SIGNAL, DEFAULT_IDLE_OFFSET);
+        let _kick_drum =
+            ContinuousDrumBinarizer::new(KICK_IDLE_VALUE, KICK_MIDI_SIGNAL, DEFAULT_IDLE_OFFSET);
+
+        let mut controller = DrumController::new();
+        controller.init();
+
         loop {
-            led.toggle();
-            delay.delay_ms(200);
+            // CRASH CYMBAL
+            let crash_hit = hal_adapter::analog_read(CRASH_PIN);
+            crash_cymbal.update_state(crash_hit, &mut midi);
+
+            // CHOKE
+            let choke_val = hal_adapter::digital_read(CHOKE_PIN);
+            crash_choke.update_state(choke_val, &mut midi);
+
+            // Kick (example)
+            // let kick_hit = hal_adapter::analog_read(CRASH_PIN);
+            // kick_drum.update_state(kick_hit, &mut midi);
+
+            controller.cycle();
+
+            // Small delay to avoid a tight busy loop on real hardware
+            delay.delay_ms(1u32);
         }
     }
 
