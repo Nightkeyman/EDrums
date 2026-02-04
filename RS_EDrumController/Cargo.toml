@@ -1,0 +1,19 @@
+[package]
+name = "nucleo-f446re-blinky"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+embedded-hal = "1.0"
+nb = "1"
+cortex-m = "0.7"
+cortex-m-rt = { version = "0.7", features = ["device"] }
+panic-halt = "1.0"
+stm32f4xx-hal = { version = "0.23.0", features = ["stm32f446"] }
+
+[profile.dev]
+codegen-units = 1
+incremental = false
+debug = true
+opt-level = 0
+split-debuginfo = "packed"
