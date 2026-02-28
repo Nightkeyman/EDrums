@@ -1,0 +1,1 @@
+&mut stm32f4xx_hal::serial::Tx<stm32f4::generic::Periph<stm32f4xx_hal::pac::usart1::RegisterBlock, 1073811456>>
